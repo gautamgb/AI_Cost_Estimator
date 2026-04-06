@@ -28,6 +28,17 @@ export const LIMITS = {
   maxComparisonConfigs: 3,
 } as const;
 
+export const OPTIMIZATION_ESTIMATES = {
+  /** Rough cost per cached token (used for savings estimate when caching is off) */
+  cachedTokenCostEstimate: 0.00000075,
+  /** Fraction of cost saved via caching */
+  cachingSavingsFraction: 0.75,
+  /** Batch discount rate */
+  batchDiscountRate: 0.5,
+  /** Assumed fraction of traffic eligible for batch */
+  batchEligibleFraction: 0.3,
+} as const;
+
 export const FORMAT = {
   currencyDecimals: 4,
   currencyDecimalsHeadline: 2,
@@ -44,5 +55,11 @@ export const FORMAT = {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
     if (amount >= 1_000) return `$${(amount / 1_000).toFixed(1)}K`;
     return `$${amount.toFixed(2)}`;
+  },
+  percent: (fraction: number, decimals = 0): string => {
+    return `${(fraction * 100).toFixed(decimals)}%`;
+  },
+  percentRaw: (value: number, decimals = 1): string => {
+    return `${value.toFixed(decimals)}%`;
   },
 } as const;

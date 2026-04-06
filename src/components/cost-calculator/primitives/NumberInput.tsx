@@ -33,7 +33,7 @@ export function NumberInput({
             const v = Number(e.target.value);
             if (!isNaN(v)) onChange(v);
           }}
-          className="w-full bg-background border border-card-border rounded px-2.5 py-1.5 text-sm font-mono text-foreground focus:outline-none focus:border-accent"
+          className="w-full bg-background border border-card-border rounded-lg px-2.5 py-1.5 text-sm font-mono text-foreground focus:outline-none focus:border-accent"
         />
         {unit && <span className="text-xs text-muted whitespace-nowrap">{unit}</span>}
       </div>

@@ -80,7 +80,7 @@ function Toggle({
   return (
     <button
       onClick={() => onChange(!checked)}
-      className="w-full flex items-center justify-between bg-background rounded px-3 py-2 hover:bg-white/5 transition-colors text-left"
+      className="w-full flex items-center justify-between bg-background rounded px-3 py-2 hover:bg-black/[0.03] transition-colors text-left"
     >
       <div>
         <p className="text-xs text-foreground">{label}</p>

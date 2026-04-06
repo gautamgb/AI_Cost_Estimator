@@ -18,10 +18,10 @@ export function CollapsiblePanel({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-card-border rounded-lg bg-card">
+    <div className="border border-card-border rounded-xl bg-card shadow-sm">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/5 transition-colors rounded-t-lg"
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-black/[0.03] transition-colors rounded-t-xl"
       >
         <div>
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>

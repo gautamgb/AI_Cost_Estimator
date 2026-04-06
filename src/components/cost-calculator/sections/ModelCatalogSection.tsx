@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MODEL_CATALOG } from "@/lib/cost-calculator/models";
+import { FORMAT } from "@/lib/cost-calculator/constants";
 import { CollapsiblePanel } from "../primitives/CollapsiblePanel";
 import type { ModelProvider } from "@/lib/cost-calculator/types";
 
@@ -68,7 +69,7 @@ export function ModelCatalogSection() {
             </thead>
             <tbody className="divide-y divide-card-border/50">
               {models.map((m) => (
-                <tr key={m.id} className="hover:bg-white/5 transition-colors">
+                <tr key={m.id} className="hover:bg-black/[0.03] transition-colors">
                   <td className="py-1.5 pr-2">
                     <span className="text-foreground">{m.name}</span>
                     {m.isReasoningModel && (
@@ -94,9 +95,7 @@ export function ModelCatalogSection() {
                       : "—"}
                   </td>
                   <td className="text-right py-1.5 pl-2 font-mono text-muted">
-                    {m.contextWindow >= 1_000_000
-                      ? `${(m.contextWindow / 1_000_000).toFixed(0)}M`
-                      : `${(m.contextWindow / 1_000).toFixed(0)}K`}
+                    {FORMAT.tokenKFormat(m.contextWindow)}
                   </td>
                 </tr>
               ))}

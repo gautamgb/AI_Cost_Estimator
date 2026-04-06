@@ -13,7 +13,7 @@ export function CostSummarySection({ result, usage, costMetricLabel }: Props) {
   const monthlyTasks = usage.tasksPerDay * usage.daysPerMonth * usage.usersCount;
 
   return (
-    <div className="border border-card-border rounded-lg bg-card p-4 space-y-4">
+    <div className="border border-card-border rounded-xl bg-card p-4 space-y-4">
       {/* Headline Number */}
       <div className="text-center space-y-1">
         <p className="text-xs text-muted uppercase tracking-wider">
@@ -118,7 +118,7 @@ function MetricCard({
   sublabel: string;
 }) {
   return (
-    <div className="bg-background rounded-lg px-3 py-2 text-center">
+    <div className="bg-background rounded-xl px-3 py-2 text-center">
       <p className="text-xs text-muted">{label}</p>
       <p className="text-sm font-mono font-semibold text-foreground">{value}</p>
       <p className="text-[10px] text-muted">{sublabel}</p>

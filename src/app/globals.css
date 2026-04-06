@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --card: #141414;
-  --card-border: #262626;
-  --muted: #737373;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
+  --background: #ffffff;
+  --foreground: #1d1d1f;
+  --card: #fbfbfd;
+  --card-border: #e5e5ea;
+  --muted: #86868b;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --success: #34c759;
+  --warning: #ff9f0a;
+  --danger: #ff3b30;
 }
 
 @theme inline {
@@ -31,10 +31,12 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — Apple-style subtle */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -42,14 +44,14 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #c7c7cc;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #aeaeb2;
 }
 
-/* Input range slider styling */
+/* Input range slider — Apple-style */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -58,16 +60,27 @@ input[type="range"] {
   height: 6px;
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  background: #333;
+  background: #e5e5ea;
   border-radius: 3px;
-  height: 6px;
+  height: 4px;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  background: var(--accent);
+  background: #ffffff;
+  border: 2px solid var(--accent);
   border-radius: 50%;
-  height: 16px;
-  width: 16px;
-  margin-top: -5px;
+  height: 18px;
+  width: 18px;
+  margin-top: -7px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Inputs — Apple-style */
+select, input[type="number"], input[type="text"] {
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+select:focus, input[type="number"]:focus, input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }

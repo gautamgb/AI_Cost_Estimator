@@ -7,6 +7,12 @@ import type {
   OptimizationSuggestion,
   CostResult,
 } from "./types";
+import { OPTIMIZATION_ESTIMATES } from "./constants";
+
+/** Calculate cost for a number of tokens at a given rate per million */
+export function tokenCost(tokens: number, pricePer1M: number): number {
+  return (tokens / 1_000_000) * pricePer1M;
+}
 
 /** Get the active pricing for a model based on the selected pricing source */
 export function getActivePricing(
@@ -28,10 +34,8 @@ export function calculateTokenCost(
   const activePricing = getActivePricing(model, pricing.pricingSource);
 
   // Base costs
-  const uncachedInputCost =
-    (tokens.uncachedInputTokens / 1_000_000) * activePricing.inputPer1M;
-  const outputCost =
-    (tokens.outputTokens / 1_000_000) * activePricing.outputPer1M;
+  const uncachedInputCost = tokenCost(tokens.uncachedInputTokens, activePricing.inputPer1M);
+  const outputCost = tokenCost(tokens.outputTokens, activePricing.outputPer1M);
 
   // Cached input cost
   let cachedInputCost: number;
@@ -41,20 +45,16 @@ export function calculateTokenCost(
     activePricing.cachedInputPer1M !== null &&
     model.supportsPromptCaching
   ) {
-    cachedInputCost =
-      (tokens.cachedInputTokens / 1_000_000) * activePricing.cachedInputPer1M;
-    const fullPriceCachedTokens =
-      (tokens.cachedInputTokens / 1_000_000) * activePricing.inputPer1M;
+    cachedInputCost = tokenCost(tokens.cachedInputTokens, activePricing.cachedInputPer1M);
+    const fullPriceCachedTokens = tokenCost(tokens.cachedInputTokens, activePricing.inputPer1M);
     cachingSavings = fullPriceCachedTokens - cachedInputCost;
   } else {
     // No caching: charge cached tokens at full input price
-    cachedInputCost =
-      (tokens.cachedInputTokens / 1_000_000) * activePricing.inputPer1M;
+    cachedInputCost = tokenCost(tokens.cachedInputTokens, activePricing.inputPer1M);
   }
 
   // Reasoning tokens (billed as output)
-  const reasoningCost =
-    (tokens.reasoningTokens / 1_000_000) * activePricing.outputPer1M;
+  const reasoningCost = tokenCost(tokens.reasoningTokens, activePricing.outputPer1M);
 
   let totalCost = uncachedInputCost + cachedInputCost + outputCost + reasoningCost;
 
@@ -104,7 +104,9 @@ export function generateOptimizations(
   // Suggest prompt caching if not enabled and there are significant cacheable tokens
   if (!pricing.promptCachingEnabled && result.totalTokens.cachedInputTokens > 0) {
     const potentialSavings =
-      result.totalTokens.cachedInputTokens * 0.00000075 * 0.75; // rough estimate
+      result.totalTokens.cachedInputTokens *
+      OPTIMIZATION_ESTIMATES.cachedTokenCostEstimate *
+      OPTIMIZATION_ESTIMATES.cachingSavingsFraction;
     if (potentialSavings > 1) {
       suggestions.push({
         id: "enable-caching",
@@ -120,7 +122,10 @@ export function generateOptimizations(
 
   // Suggest batch API for non-realtime workloads
   if (!pricing.batchApiEnabled) {
-    const potentialSavings = result.monthlyLlmCost * 0.5 * 0.3; // 50% discount on 30% of traffic
+    const potentialSavings =
+      result.monthlyLlmCost *
+      OPTIMIZATION_ESTIMATES.batchDiscountRate *
+      OPTIMIZATION_ESTIMATES.batchEligibleFraction;
     if (potentialSavings > 5) {
       suggestions.push({
         id: "enable-batch",

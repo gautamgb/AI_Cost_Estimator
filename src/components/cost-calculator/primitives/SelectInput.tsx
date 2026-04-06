@@ -24,7 +24,7 @@ export function SelectInput({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-background border border-card-border rounded px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:border-accent"
+        className="w-full bg-background border border-card-border rounded-lg px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:border-accent"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

@@ -36,7 +36,7 @@ export function ComparisonModeSection({ state, currentResult, dispatch }: Props)
 
   if (state.comparisonConfigs.length === 0) {
     return (
-      <div className="border border-card-border rounded-lg bg-card p-4 space-y-3">
+      <div className="border border-card-border rounded-xl bg-card p-4 space-y-3">
         <h3 className="text-sm font-semibold text-foreground">Compare Configs</h3>
         <p className="text-xs text-muted">
           Save the current config to compare side-by-side with alternatives.
@@ -59,7 +59,7 @@ export function ComparisonModeSection({ state, currentResult, dispatch }: Props)
   }
 
   return (
-    <div className="border border-card-border rounded-lg bg-card p-4 space-y-3">
+    <div className="border border-card-border rounded-xl bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Comparison</h3>
         {state.comparisonConfigs.length < LIMITS.maxComparisonConfigs && (

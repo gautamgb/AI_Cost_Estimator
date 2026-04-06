@@ -35,7 +35,7 @@ export function StackBreakdownPanel({
   const totalCost = stackBreakdown.reduce((s, c) => s + c.costUsd, 0);
 
   return (
-    <div className="border border-card-border rounded-lg bg-card">
+    <div className="border border-card-border rounded-xl bg-card">
       {/* Header */}
       <div className="px-4 py-3 border-b border-card-border flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">
@@ -86,7 +86,7 @@ export function StackBreakdownPanel({
                   onClick={() =>
                     setExpandedId(isExpanded ? null : component.componentId)
                   }
-                  className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left"
+                  className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-black/[0.03] transition-colors text-left"
                 >
                   {/* Category dot */}
                   <span
@@ -202,7 +202,7 @@ export function StackBreakdownPanel({
                   onClick={() =>
                     setExpandedId(isExpanded ? null : agent.agentId)
                   }
-                  className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left"
+                  className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-black/[0.03] transition-colors text-left"
                 >
                   <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
                   <div className="flex-1 min-w-0">

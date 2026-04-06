@@ -32,8 +32,9 @@ function calculateAgentInputTokens(agent: AgentDefinition): {
 
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
+  let compressedHistory = 0;
+  const compressionRatio = DEFAULTS.summaryCompressionRatio;
 
-  // Main steps
   for (let step = 0; step < N; step++) {
     let stepInputTokens = basePerCall + agent.avgInputTokensPerStep + toolCallTokensPerStep;
 
@@ -52,13 +53,6 @@ function calculateAgentInputTokens(agent: AgentDefinition): {
         break;
       }
       case "summary-compression": {
-        // History grows but compressed by ratio each step
-        const compressionRatio = DEFAULTS.summaryCompressionRatio;
-        let compressedHistory = 0;
-        for (let i = 0; i < step; i++) {
-          compressedHistory =
-            (compressedHistory + avgStepNewTokens) * compressionRatio;
-        }
         stepInputTokens += Math.round(compressedHistory);
         break;
       }
@@ -69,6 +63,11 @@ function calculateAgentInputTokens(agent: AgentDefinition): {
 
     totalInputTokens += stepInputTokens;
     totalOutputTokens += agent.avgOutputTokensPerStep;
+
+    // Update running compressed history for next step
+    if (agent.contextStrategy === "summary-compression") {
+      compressedHistory = (compressedHistory + avgStepNewTokens) * compressionRatio;
+    }
   }
 
   // Reflection passes: each is an extra call at current context size
@@ -87,15 +86,12 @@ function calculateAgentInputTokens(agent: AgentDefinition): {
   const totalCachedInput = cachedTokensPerCall * totalLlmCalls * agent.cacheableInputFraction;
   const totalUncachedInput = totalInputTokens - totalCachedInput;
 
-  // Reasoning tokens for thinking models
-  const reasoningTokens = 0; // Applied at model level via multiplier
-
   return {
     totalInput: totalInputTokens,
     cachedInput: Math.max(0, totalCachedInput),
     uncachedInput: Math.max(0, totalUncachedInput),
     totalOutput: totalOutputTokens,
-    reasoningTokens,
+    reasoningTokens: 0, // Applied at model level via multiplier in calculateAgenticWorkflowCost
     llmCalls: totalLlmCalls,
   };
 }
@@ -264,12 +260,12 @@ export function calculateAgenticWorkflowCost(
       pricing
     );
 
-    // Stack breakdown for this agent
     const stackBreakdown = calculateStackBreakdown(
       agent,
       model,
       pricing,
-      monthlyTasks
+      monthlyTasks,
+      models
     );
 
     agentBreakdowns.push({

@@ -151,7 +151,7 @@ export function AgentWorkflowSection({ workflow, dispatch }: Props) {
           {workflow.agents.map((agent, index) => (
             <div
               key={agent.id}
-              className="border border-card-border rounded-lg bg-background p-3 space-y-3"
+              className="border border-card-border rounded-xl bg-background p-3 space-y-3"
             >
               {/* Agent Header */}
               <div className="flex items-center justify-between">
@@ -294,7 +294,7 @@ export function AgentWorkflowSection({ workflow, dispatch }: Props) {
         {workflow.agents.length < LIMITS.maxAgents && (
           <button
             onClick={addAgent}
-            className="w-full py-2 border border-dashed border-card-border rounded-lg text-xs text-muted hover:text-foreground hover:border-accent transition-colors"
+            className="w-full py-2 border border-dashed border-card-border rounded-xl text-xs text-muted hover:text-foreground hover:border-accent transition-colors"
           >
             + Add Agent
           </button>

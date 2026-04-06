@@ -5,31 +5,29 @@ import type {
   StackComponentCost,
   TokenBreakdown,
 } from "./types";
-import { getActivePricing } from "./engine";
-import { getModelById } from "./models";
+import { getActivePricing, tokenCost } from "./engine";
 
 /** Calculate per-component cost breakdown for an agent's stack */
 export function calculateStackBreakdown(
   agent: AgentDefinition,
   primaryModel: ModelDefinition,
   pricing: PricingConfig,
-  monthlyTasks: number
+  monthlyTasks: number,
+  modelMap?: Map<string, ModelDefinition>
 ): StackComponentCost[] {
   const results: StackComponentCost[] = [];
 
   for (const component of agent.stackComponents) {
     const model = component.modelId
-      ? getModelById(component.modelId) ?? primaryModel
+      ? (modelMap?.get(component.modelId) ?? primaryModel)
       : primaryModel;
 
     const activePricing = getActivePricing(model, pricing.pricingSource);
     const totalCalls = component.callsPerInvocation * monthlyTasks;
 
-    // Token costs
     const totalInputTokens = component.avgInputTokens * totalCalls;
     const totalOutputTokens = component.avgOutputTokens * totalCalls;
 
-    // Cached vs uncached split
     let cachedInputTokens = 0;
     let uncachedInputTokens = totalInputTokens;
     let cachedSavingsUsd = 0;
@@ -43,35 +41,25 @@ export function calculateStackBreakdown(
       cachedInputTokens = Math.round(totalInputTokens * component.cacheHitRate);
       uncachedInputTokens = totalInputTokens - cachedInputTokens;
 
-      const fullPriceCost =
-        (cachedInputTokens / 1_000_000) * activePricing.inputPer1M;
-      const cachedPriceCost =
-        (cachedInputTokens / 1_000_000) * activePricing.cachedInputPer1M;
-      cachedSavingsUsd = fullPriceCost - cachedPriceCost;
+      cachedSavingsUsd =
+        tokenCost(cachedInputTokens, activePricing.inputPer1M) -
+        tokenCost(cachedInputTokens, activePricing.cachedInputPer1M);
     }
 
-    // Calculate token-based cost
     const inputCost =
-      (uncachedInputTokens / 1_000_000) * activePricing.inputPer1M +
-      (cachedInputTokens / 1_000_000) *
-        (activePricing.cachedInputPer1M ?? activePricing.inputPer1M);
-    const outputCost =
-      (totalOutputTokens / 1_000_000) * activePricing.outputPer1M;
+      tokenCost(uncachedInputTokens, activePricing.inputPer1M) +
+      tokenCost(cachedInputTokens, activePricing.cachedInputPer1M ?? activePricing.inputPer1M);
+    const outputCost = tokenCost(totalOutputTokens, activePricing.outputPer1M);
 
-    // Fixed costs (vector search fees, etc.)
     const fixedCosts = (component.fixedCostPerCall ?? 0) * totalCalls;
 
-    // Bedrock delta
     let bedrockDeltaUsd = 0;
     if (pricing.pricingSource === "aws-bedrock" && model.bedrockPricing) {
-      const directInputCost =
-        (uncachedInputTokens / 1_000_000) * model.pricing.inputPer1M;
-      const directOutputCost =
-        (totalOutputTokens / 1_000_000) * model.pricing.outputPer1M;
-      bedrockDeltaUsd = inputCost + outputCost - (directInputCost + directOutputCost);
+      const directCost =
+        tokenCost(uncachedInputTokens, model.pricing.inputPer1M) +
+        tokenCost(totalOutputTokens, model.pricing.outputPer1M);
+      bedrockDeltaUsd = inputCost + outputCost - directCost;
     }
-
-    const totalCost = inputCost + outputCost + fixedCosts;
 
     const tokens: TokenBreakdown = {
       uncachedInputTokens,
@@ -86,14 +74,10 @@ export function calculateStackBreakdown(
       category: component.category,
       modelName: model.name,
       tokens,
-      costUsd: totalCost,
-      percentage: 0, // normalized later by caller
+      costUsd: inputCost + outputCost + fixedCosts,
+      percentage: 0,
       callCount: totalCalls,
-      details: {
-        cachedSavingsUsd,
-        bedrockDeltaUsd,
-        fixedCosts,
-      },
+      details: { cachedSavingsUsd, bedrockDeltaUsd, fixedCosts },
     });
   }
 
